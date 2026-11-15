@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, callFn, errText, fmtDate, DEFAULT_ROLE_TITLES, ROLE_ORDER } from '../lib/supabase';
 import { Modal, Err, Field } from '../components/ui';
+import Briefs from './Briefs';
 
 const COUNTRIES: [string, string, string, string][] = [
   ['BY', 'Беларусь', 'BYN', 'Europe/Minsk'], ['RU', 'Россия', 'RUB', 'Europe/Moscow'], ['KZ', 'Казахстан', 'KZT', 'Asia/Almaty'],
@@ -17,7 +18,7 @@ export default function Admin() {
   async function load() {
     const [c, n, p] = await Promise.all([
       supabase.from('companies').select('*').order('created_at', { ascending: false }),
-      supabase.from('niche_templates').select('key,title').neq('key', '__base').order('title'),
+      supabase.from('niche_templates').select('key,title').not('key', 'like', '\\_%').order('title'),
       supabase.from('profiles').select('company_id').eq('is_active', true),
     ]);
     if (c.error) return setErr(errText(c.error));
@@ -29,7 +30,7 @@ export default function Admin() {
   return (
     <>
       <div className="row between"><div><h1>Компании клиентов</h1><p className="sub">Каждый клиент — изолированная компания со своей нишей, ролями и данными</p></div>
-        <button className="primary" onClick={() => setOpen(true)}>Новый клиент по брифу</button></div>
+        <button onClick={() => setOpen(true)}>Быстро, без брифа</button></div>
       <Err text={err} />
       <div className="card"><div className="tbl-wrap"><table>
         <thead><tr><th>Компания</th><th>Ниша</th><th>Страна</th><th>Сотрудников</th><th>Запрос клиента</th><th>Создана</th></tr></thead>
@@ -37,6 +38,7 @@ export default function Admin() {
           {companies.map((c) => <tr key={c.id}><td><b>{c.name}</b></td><td>{nicheTitle(c.niche_key)}</td><td>{c.country}</td><td>{counts[c.id] || 0}</td>
             <td className="muted small" style={{ maxWidth: 300 }}>{c.brief?.request || ''}</td><td>{fmtDate(c.created_at.slice(0, 10))}</td></tr>)}</tbody>
       </table></div></div>
+      <Briefs onCreated={load} />
       {open && <Brief niches={niches} onClose={(c) => { setOpen(false); if (c) load(); }} />}
     </>
   );

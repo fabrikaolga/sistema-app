@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase, errText, fmtDate, addDays } from '../lib/supabase';
+import { supabase, errText, fmtDate, addDays, today } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { Modal, Err, Field, Pill, PersonSelect } from '../components/ui';
 
@@ -91,7 +91,7 @@ export function CreateTask({ onClose, preset }: { onClose: (changed: boolean) =>
     setErr('');
     if (f.title.trim().length < 5) return setErr('Опишите задачу конкретно');
     if (f.expected_result.trim().length < 5) return setErr('Укажите измеримый результат: что и сколько');
-    if (f.due_date < new Date().toISOString().slice(0, 10)) return setErr('Срок не может быть в прошлом');
+    if (f.due_date < today()) return setErr('Срок не может быть в прошлом');
     const { error } = await supabase.from('tasks').insert({ ...f, title: f.title.trim(), expected_result: f.expected_result.trim(), creator_id: profile!.id, source: preset?.source || 'manual' });
     if (error) return setErr(errText(error));
     onClose(true);

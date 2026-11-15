@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase, callFn, errText, ROLE_ORDER, type Profile, type RoleKey } from '../lib/supabase';
+import { supabase, callFn, errText, ROLE_ORDER, today, type Profile, type RoleKey } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { Modal, Err, Field, PersonSelect } from '../components/ui';
 
@@ -133,7 +133,7 @@ function MoveManager({ target, onClose }: { target: Profile; onClose: (c: boolea
 function Workload() {
   const { roleTitle } = useAuth();
   const [rows, setRows] = useState<any[]>([]);
-  useEffect(() => { supabase.rpc('workload', { p_day: new Date().toISOString().slice(0, 10) }).then(({ data }) => setRows(data || [])); }, []);
+  useEffect(() => { supabase.rpc('workload', { p_day: today() }).then(({ data }) => setRows(data || [])); }, []);
   if (!rows.length) return null;
   return (
     <div className="card"><h2>Нагрузка и управляемость</h2><div className="tbl-wrap"><table>

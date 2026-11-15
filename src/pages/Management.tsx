@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase, errText, fmtDate, today, callFn } from '../lib/supabase';
+import { supabase, errText, fmtDate, today, ymd, callFn } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { Modal, Err, Field } from '../components/ui';
 import { CreateTask } from './Tasks';
@@ -47,7 +47,7 @@ function Events() {
     const from = new Date(); from.setDate(from.getDate() - 7);
     const to = new Date(); to.setDate(to.getDate() + 7);
     const { data, error } = await supabase.from('rm_events').select('*').eq('host_id', profile!.id)
-      .gte('scheduled_for', from.toISOString().slice(0, 10)).lte('scheduled_for', to.toISOString().slice(0, 10)).order('scheduled_for');
+      .gte('scheduled_for', ymd(from)).lte('scheduled_for', ymd(to)).order('scheduled_for');
     if (error) setErr(errText(error)); else setRows(data || []);
   }
   useEffect(() => { load(); }, []);
@@ -198,7 +198,7 @@ function DailyActivity() {
     const [n, m, f] = await Promise.all([
       supabase.from('activity_norms').select('*').eq('role_key', profile!.role_key),
       supabase.from('metrics').select('*'),
-      supabase.from('facts').select('metric_key, value, fact_date').eq('owner_id', profile!.id).gte('fact_date', monday.toISOString().slice(0, 10)),
+      supabase.from('facts').select('metric_key, value, fact_date').eq('owner_id', profile!.id).gte('fact_date', ymd(monday)),
     ]);
     if (n.error) return setErr(errText(n.error));
     setNorms(n.data || []); setMetrics(m.data || []);

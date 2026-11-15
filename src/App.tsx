@@ -16,6 +16,8 @@ import Admin from './pages/Admin';
 import Settings from './pages/Settings';
 import Management from './pages/Management';
 import Trainer from './pages/Trainer';
+import RoleModels from './pages/RoleModels';
+import Clock from './components/Clock';
 
 function Shell() {
   const { session, profile, company, loading, roleTitle, isManager, isTop } = useAuth();
@@ -32,6 +34,7 @@ function Shell() {
     : [
         ['/', 'Главная', true],
         ['/management', 'Регулярный менеджмент', true],
+        ['/models', 'Модели работ', true],
         ['/trainer', 'Тренажёр', true],
         ['/deals', 'Сделки', true],
         ['/tasks', 'Задачи', true],
@@ -49,6 +52,7 @@ function Shell() {
       <aside className={`side ${open ? 'open' : ''}`} onClick={() => setOpen(false)}>
         <div className="brand">СИСТЕМА</div>
         <div className="brand-sub">{company?.name || 'Fabrika Business AI'}</div>
+        <Clock tz={company?.timezone} country={company?.country} />
         <nav className="nav">
           {links.filter((l) => l[2]).map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}
         </nav>
@@ -68,6 +72,7 @@ function Shell() {
               <>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/management" element={<Management />} />
+                <Route path="/models" element={<RoleModels />} />
                 <Route path="/trainer" element={<Trainer />} />
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/tasks" element={<Tasks />} />
